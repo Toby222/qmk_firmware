@@ -55,17 +55,15 @@ enum custom_keycodes {
 
 enum tap_dance_codes {
   DANCE_0,
-  DANCE_1,
-  DANCE_2,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_moonlander(
     KC_EQUAL,       KC_1,           KC_2,           KC_3,           KC_4,           KC_5,           KC_PGUP,                                        KC_PGDOWN,      KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_MINUS,
     KC_DELETE,      KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,           TO(1),                                          TO(2),          KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_BSLASH,
-    KC_BSPACE,      KC_A,           KC_S,           KC_D,           KC_F,           KC_G,           TD(DANCE_0),                                                                    TD(DANCE_1),    KC_H,           KC_J,           KC_K,           KC_L,           KC_SCOLON,      KC_QUOTE,
+    KC_BSPACE,      KC_A,           KC_S,           KC_D,           KC_F,           KC_G,           MO(2),                                                                          MO(2),          KC_H,           KC_J,           KC_K,           KC_L,           KC_SCOLON,      KC_QUOTE,
     KC_LSHIFT,      KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       KC_RSHIFT,
-    TD(DANCE_2),    KC_LCTRL,       KC_LALT,        KC_LEFT,        KC_RIGHT,       KC_LALT,                                                                                                        KC_ESCAPE,      KC_UP,          KC_DOWN,        KC_LBRACKET,    KC_RBRACKET,    KC_END,
+    TD(DANCE_0),    KC_LCTRL,       KC_LALT,        KC_LEFT,        KC_RIGHT,       KC_LALT,                                                                                                        KC_ESCAPE,      KC_UP,          KC_DOWN,        KC_LBRACKET,    KC_RBRACKET,    KC_END,
     KC_SPACE,       KC_BSPACE,      KC_LGUI,                        KC_F4,          KC_TAB,         KC_ENTER
   ),
   [1] = LAYOUT_moonlander(
@@ -162,7 +160,7 @@ enum {
     MORE_TAPS
 };
 
-static tap dance_state[3];
+static tap dance_state[1];
 
 uint8_t dance_step(qk_tap_dance_state_t *state);
 
@@ -179,36 +177,10 @@ uint8_t dance_step(qk_tap_dance_state_t *state) {
 }
 
 void on_dance_0(qk_tap_dance_state_t *state, void *user_data);
+void dance_0_finished(qk_tap_dance_state_t *state, void *user_data);
 void dance_0_reset(qk_tap_dance_state_t *state, void *user_data);
 
 void on_dance_0(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[0].step = dance_step(state);
-    layer_on(2);
-}
-
-void dance_0_reset(qk_tap_dance_state_t *state, void *user_data) {
-    layer_off(2);
-    dance_state[0].step = 0;
-}
-
-void on_dance_1(qk_tap_dance_state_t *state, void *user_data);
-void dance_1_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_1(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[1].step = dance_step(state);
-    layer_on(2);
-}
-
-void dance_1_reset(qk_tap_dance_state_t *state, void *user_data) {
-    layer_off(2);
-    dance_state[0].step = 0;
-}
-
-void on_dance_2(qk_tap_dance_state_t *state, void *user_data);
-void dance_2_finished(qk_tap_dance_state_t *state, void *user_data);
-void dance_2_reset(qk_tap_dance_state_t *state, void *user_data);
-
-void on_dance_2(qk_tap_dance_state_t *state, void *user_data) {
     if(state->count == 3) {
         tap_code16(KC_GRAVE);
         tap_code16(KC_GRAVE);
@@ -219,9 +191,9 @@ void on_dance_2(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void dance_2_finished(qk_tap_dance_state_t *state, void *user_data) {
-    dance_state[2].step = dance_step(state);
-    switch (dance_state[2].step) {
+void dance_0_finished(qk_tap_dance_state_t *state, void *user_data) {
+    dance_state[0].step = dance_step(state);
+    switch (dance_state[0].step) {
         case SINGLE_TAP: register_code16(KC_GRAVE); break;
         case SINGLE_HOLD: register_code16(KC_HOME); break;
         case DOUBLE_TAP: register_code16(KC_GRAVE); register_code16(KC_GRAVE); break;
@@ -229,20 +201,18 @@ void dance_2_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void dance_2_reset(qk_tap_dance_state_t *state, void *user_data) {
+void dance_0_reset(qk_tap_dance_state_t *state, void *user_data) {
     wait_ms(10);
-    switch (dance_state[2].step) {
+    switch (dance_state[0].step) {
         case SINGLE_TAP: unregister_code16(KC_GRAVE); break;
         case SINGLE_HOLD: unregister_code16(KC_HOME); break;
         case DOUBLE_TAP: unregister_code16(KC_GRAVE); break;
         case DOUBLE_SINGLE_TAP: unregister_code16(KC_GRAVE); break;
     }
-    dance_state[2].step = 0;
+    dance_state[0].step = 0;
 }
 
 qk_tap_dance_action_t tap_dance_actions[] = {
-    [DANCE_0] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_0, NULL, dance_0_reset),
-    [DANCE_1] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_1, NULL, dance_1_reset),
-    [DANCE_2] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_2, dance_2_finished, dance_2_reset),
+    [DANCE_0] = ACTION_TAP_DANCE_FN_ADVANCED(on_dance_0, dance_0_finished, dance_0_reset),
 };
 
