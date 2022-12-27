@@ -30,6 +30,8 @@
 #include "keymap_turkish_q.h"
 #include "keymap_slovak.h"
 
+#include "features/mouse_turbo_click.h"
+
 #define KC_MAC_UNDO LGUI(KC_Z)
 #define KC_MAC_CUT LGUI(KC_X)
 #define KC_MAC_COPY LGUI(KC_C)
@@ -49,9 +51,8 @@
 #define MOON_LED_LEVEL LED_LEVEL
 
 enum custom_keycodes {
-  RGB_SLD = ML_SAFE_RANGE,
+  AUTOCLICK = ML_SAFE_RANGE,
 };
-
 
 enum tap_dance_codes {
   DANCE_0,
@@ -77,7 +78,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [2] = LAYOUT_moonlander(
     KC_ESCAPE,      KC_F1,          KC_F2,          KC_F3,          KC_F4,          KC_F5,          RESET,                                          WEBUSB_PAIR,    KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
     KC_TRANSPARENT, KC_F6,          KC_F7,          KC_F8,          KC_F9,          KC_F10,         TO(1),                                          TO(0),          KC_UP,          KC_KP_7,        KC_KP_8,        KC_KP_9,        KC_KP_PLUS,     KC_TRANSPARENT,
-    KC_TRANSPARENT, KC_F11,         KC_F12,         KC_F13,         KC_F14,         KC_F15,         KC_INSERT,                                      KC_PRINT_SCREEN,KC_DOWN,        KC_KP_4,        KC_KP_5,        KC_KP_6,        KC_KP_MINUS,    KC_EQUAL,
+    KC_TRANSPARENT, KC_F11,         KC_F12,         KC_F13,         KC_F14,         KC_F15,         KC_INSERT,                                      AUTOCLICK,      KC_DOWN,        KC_KP_4,        KC_KP_5,        KC_KP_6,        KC_KP_MINUS,    KC_EQUAL,
     KC_TRANSPARENT, KC_F16,         KC_F17,         KC_F18,         KC_F19,         KC_F20,                                                                         KC_NUMLOCK,     KC_KP_1,        KC_KP_2,        KC_KP_3,        KC_KP_ASTERISK, KC_KP_ENTER,
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                 KC_LALT,                                        KC_ESCAPE,                      KC_KP_COMMA,    KC_KP_DOT,      KC_KP_0,        KC_KP_SLASH,    KC_TRANSPARENT,
                                                                                     KC_SPACE,       KC_BSPACE,      WEBUSB_PAIR,    RGB_VAI,        RGB_VAD,        KC_ENTER
@@ -132,13 +133,7 @@ void rgb_matrix_indicators_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case RGB_SLD:
-      if (record->event.pressed) {
-        rgblight_mode(1);
-      }
-      return false;
-  }
+  if (!process_mouse_turbo_click(keycode, record, AUTOCLICK)) { return false; }
   return true;
 }
 
